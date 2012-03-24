@@ -224,13 +224,13 @@ class DBManager
 	# Find a host.  Performs no database writes.
 	#
 	def get_host(opts)
-		if opts.kind_of? Host
+		if opts.kind_of? Mdm::Host
 			return opts
 		elsif opts.kind_of? String
 			raise RuntimeError, "This invokation of get_host is no longer supported: #{caller}"
 		else
 			address = opts[:addr] || opts[:address] || opts[:host] || return
-			return address if address.kind_of? Host
+			return address if address.kind_of? Mdm::Host
 		end
 		wspace = opts.delete(:workspace) || workspace
 		if wspace.kind_of? String
@@ -282,7 +282,7 @@ class DBManager
 				
 		ret = { }
 
-		if not addr.kind_of? Host
+		if not addr.kind_of? Mdm::Host
 			addr = normalize_host(addr)
 			addr, scope = addr.split('%', 2)
 			opts[:scope] = scope if scope
@@ -316,10 +316,10 @@ class DBManager
 					host[k] = v.to_s.gsub(/[\x00-\x1f]/, '')
 				end
 			else
-				dlog("Unknown attribute for Host: #{k}")
+				dlog("Unknown attribute for Mdm::Host: #{k}")
 			end
 		}
-		host.info = host.info[0,Host.columns_hash["info"].limit] if host.info
+		host.info = host.info[0,Mdm::Host.columns_hash["info"].limit] if host.info
 
 		# Set default fields if needed
 		host.state       = HostState::Alive if not host.state
@@ -365,7 +365,7 @@ class DBManager
 			wspace = find_workspace(wspace)
 		end
 
-		if not addr.kind_of? Host
+		if not addr.kind_of? Mdm::Host
 			addr = normalize_host(addr)
 			addr, scope = addr.split('%', 2)
 			opts[:scope] = scope if scope
@@ -502,7 +502,7 @@ class DBManager
 			opts[:name] = opts.delete(:sname)
 		end
 
-		if addr.kind_of? Host
+		if addr.kind_of? Mdm::Host
 			host = addr
 			addr = host.address
 		else
