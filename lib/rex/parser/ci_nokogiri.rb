@@ -170,7 +170,7 @@ module Rex
 		def report_vulns(host_object)
 			vuln_count = 0
 			block = @block
-			return unless host_object.kind_of? Mdm::Host
+			return unless host_object.kind_of? ::Mdm::Host
 			return unless @state[:root]["Vulnerabilities"]
 			@state[:root]["Vulnerabilities"].each_pair do |cve, vinfo|
 				vinfo.each_pair do |vname, vdesc|

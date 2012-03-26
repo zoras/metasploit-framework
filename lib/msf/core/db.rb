@@ -190,27 +190,27 @@ class DBManager
 	# Determines if the database is functional
 	#
 	def check
-		res = Mdm::Host.find(:first)
+		res = ::Mdm::Host.find(:first)
 	end
 
 
 	def default_workspace
-		Mdm::Workspace.default
+		::Mdm::Workspace.default
 	end
 
 	def find_workspace(name)
-		Mdm::Workspace.find_by_name(name)
+		::Mdm::Workspace.find_by_name(name)
 	end
 
 	#
 	# Creates a new workspace in the database
 	#
 	def add_workspace(name)
-		Mdm::Workspace.find_or_create_by_name(name)
+		::Mdm::Workspace.find_or_create_by_name(name)
 	end
 
 	def workspaces
-		Mdm::Workspace.find(:all)
+		::Mdm::Workspace.find(:all)
 	end
 
 	#
@@ -224,13 +224,13 @@ class DBManager
 	# Find a host.  Performs no database writes.
 	#
 	def get_host(opts)
-		if opts.kind_of? Mdm::Host
+		if opts.kind_of? ::Mdm::Host
 			return opts
 		elsif opts.kind_of? String
 			raise RuntimeError, "This invokation of get_host is no longer supported: #{caller}"
 		else
 			address = opts[:addr] || opts[:address] || opts[:host] || return
-			return address if address.kind_of? Mdm::Host
+			return address if address.kind_of? ::Mdm::Host
 		end
 		wspace = opts.delete(:workspace) || workspace
 		if wspace.kind_of? String
@@ -282,7 +282,7 @@ class DBManager
 				
 		ret = { }
 
-		if not addr.kind_of? Mdm::Host
+		if not addr.kind_of? ::Mdm::Host
 			addr = normalize_host(addr)
 			addr, scope = addr.split('%', 2)
 			opts[:scope] = scope if scope
@@ -316,10 +316,10 @@ class DBManager
 					host[k] = v.to_s.gsub(/[\x00-\x1f]/, '')
 				end
 			else
-				dlog("Unknown attribute for Mdm::Host: #{k}")
+				dlog("Unknown attribute for ::Mdm::Host: #{k}")
 			end
 		}
-		host.info = host.info[0,Mdm::Host.columns_hash["info"].limit] if host.info
+		host.info = host.info[0,::Mdm::Host.columns_hash["info"].limit] if host.info
 
 		# Set default fields if needed
 		host.state       = HostState::Alive if not host.state
@@ -365,7 +365,7 @@ class DBManager
 			wspace = find_workspace(wspace)
 		end
 
-		if not addr.kind_of? Mdm::Host
+		if not addr.kind_of? ::Mdm::Host
 			addr = normalize_host(addr)
 			addr, scope = addr.split('%', 2)
 			opts[:scope] = scope if scope
@@ -502,7 +502,7 @@ class DBManager
 			opts[:name] = opts.delete(:sname)
 		end
 
-		if addr.kind_of? Mdm::Host
+		if addr.kind_of? ::Mdm::Host
 			host = addr
 			addr = host.address
 		else
@@ -581,7 +581,7 @@ class DBManager
 		addr   = opts[:addr] || opts[:address] || opts[:host] || return
 		host = get_host(:workspace => wspace, :host => addr)
 		time = opts[:opened_at] || opts[:created_at] || opts[:time] || return
-		Mdm::Session.find_by_host_id_and_opened_at(host.id, time)
+		::Mdm::Session.find_by_host_id_and_opened_at(host.id, time)
 	end
 
 	# Record a new session in the database
@@ -641,7 +641,7 @@ class DBManager
 			sess_data[:desc] = sess_data[:desc][0,255]
 		end
 
-		s = Mdm::Session.new(sess_data)
+		s = ::Mdm::Session.new(sess_data)
 		s.save!
 
 		if opts[:session]
@@ -673,7 +673,7 @@ class DBManager
 	# Record a session event in the database
 	#
 	# opts MUST contain one of:
-	# +:session+:: the Msf::Session OR the Mdm::Session we are reporting
+	# +:session+:: the Msf::Session OR the ::Mdm::Session we are reporting
 	# +:etype+::   event type, enum: command, output, upload, download, filedelete
 	#
 	# opts may contain
@@ -712,7 +712,7 @@ class DBManager
 			event_data[attr] = opts[attr] if opts[attr]
 		end
 
-		s = Mdm::SessionEvent.create(event_data)
+		s = ::Mdm::SessionEvent.create(event_data)
 	end
 
 	def report_session_route(session, route)
@@ -857,7 +857,7 @@ class DBManager
 	end
 
 	#
-	# Report a Note to the database.  Notes can be tied to a Mdm::Workspace, Host, or Service.
+	# Report a Note to the database.  Notes can be tied to a ::Mdm::Workspace, Host, or Service.
 	#
 	# opts MUST contain
 	# +:data+::  whatever it is you're making a note of
@@ -893,7 +893,7 @@ class DBManager
 		addr = nil
 		# Report the host so it's there for the Proc to use below
 		if opts[:host]
-			if opts[:host].kind_of? Mdm::Host
+			if opts[:host].kind_of? ::Mdm::Host
 				host = opts[:host]
 			else
 				addr = normalize_host(opts[:host])
@@ -1080,7 +1080,7 @@ class DBManager
 		raise ArgumentError.new("Missing required option :host") if opts[:host].nil?
 		raise ArgumentError.new("Missing required option :port") if (opts[:port].nil? and opts[:service].nil?)
 
-		if (not opts[:host].kind_of?(Mdm::Host)) and (not validate_ips(opts[:host]))
+		if (not opts[:host].kind_of?(::Mdm::Host)) and (not validate_ips(opts[:host]))
 			raise ArgumentError.new("Invalid address or object for :host (#{opts[:host].inspect})")
 		end
 
@@ -1244,7 +1244,7 @@ class DBManager
 
 		host = nil
 		addr = nil
-		if opts[:host].kind_of? Mdm::Host
+		if opts[:host].kind_of? ::Mdm::Host
 			host = opts[:host]
 		else
 			host = report_host({:workspace => wspace, :host => opts[:host]})
@@ -1398,11 +1398,11 @@ class DBManager
 		return if not wspace # Temp fix?
 		uname  = opts.delete(:username)
 
-		if ! opts[:host].kind_of? Mdm::Host and opts[:host]
+		if ! opts[:host].kind_of? ::Mdm::Host and opts[:host]
 			opts[:host] = report_host(:workspace => wspace, :host => opts[:host])
 		end
 
-		Mdm::Event.create(opts.merge(:workspace_id => wspace[:id], :username => uname))
+		::Mdm::Event.create(opts.merge(:workspace_id => wspace[:id], :username => uname))
 	end
 
 	#
@@ -1435,7 +1435,7 @@ class DBManager
 
 		# Report the host so it's there for the Proc to use below
 		if opts[:host]
-			if opts[:host].kind_of? Mdm::Host
+			if opts[:host].kind_of? ::Mdm::Host
 				host = opts[:host]
 			else
 				host = report_host({:workspace => wspace, :host => opts[:host]})
@@ -5353,7 +5353,7 @@ class DBManager
 	# address
 	#
 	def normalize_host(host)
-		return host if host.kind_of? Mdm::Host
+		return host if host.kind_of? ::Mdm::Host
 		norm_host = nil
 
 		if (host.kind_of? String)

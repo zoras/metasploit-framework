@@ -81,7 +81,7 @@ module Rex
 		def report_vulns(host_object)
 			vuln_count = 0
 			block = @block
-			return unless host_object.kind_of? Mdm::Host
+			return unless host_object.kind_of? ::Mdm::Host
 			return unless @report_data[:vulns]
 			@report_data[:vulns].each do |vuln|
 				if vuln[:refs]
