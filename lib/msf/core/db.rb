@@ -615,7 +615,7 @@ class DBManager
 				:local_id => session.sid
 			}
 		elsif opts[:host]
-			raise ArgumentError.new("Invalid :host, expected Host object") unless opts[:host].kind_of? Host
+			raise ArgumentError.new("Invalid :host, expected Host object") unless opts[:host].kind_of? ::Mdm::Host
 			host = opts[:host]
 			sess_data = {
 				:host_id => host.id,
@@ -934,7 +934,7 @@ class DBManager
 		end
 		if host and (opts[:port] and opts[:proto])
 			service = get_service(wspace, host, opts[:proto], opts[:port])
-		elsif opts[:service] and opts[:service].kind_of? Service
+		elsif opts[:service] and opts[:service].kind_of? ::Mdm::Service
 			service = opts[:service]
 		end
 =begin
@@ -991,7 +991,7 @@ class DBManager
 			if host
 				note.host_id = host[:id]
 			end
-			if opts[:service] and opts[:service].kind_of? Service
+			if opts[:service] and opts[:service].kind_of? ::Mdm::Service
 				note.service_id = opts[:service][:id]
 			end
 			note.seen     = seen
@@ -1455,7 +1455,7 @@ class DBManager
 		if host
 			loot.host_id = host[:id]
 		end
-		if opts[:service] and opts[:service].kind_of? Service
+		if opts[:service] and opts[:service].kind_of? ::Mdm::Service
 			loot.service_id = opts[:service][:id]
 		end
 
@@ -1611,7 +1611,7 @@ class DBManager
 		serv = nil
 		info = nil
 
-		if opts[:service] and opts[:service].kind_of?(Service)
+		if opts[:service] and opts[:service].kind_of?(::Mdm::Service)
 			serv = opts[:service]
 		else
 			addr = opts[:host]
@@ -5364,7 +5364,7 @@ class DBManager
 			else
 				norm_host = host
 			end
-		elsif host.kind_of? Session
+		elsif host.kind_of? ::Mdm::Session
 			norm_host = host.host
 		elsif host.respond_to?(:session_host)
 			# Then it's an Msf::Session object
