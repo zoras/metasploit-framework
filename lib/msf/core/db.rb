@@ -490,7 +490,7 @@ class DBManager
 		hmac  = opts.delete(:mac)
 		host  = nil
 		wspace = opts.delete(:workspace) || workspace
-
+    opts[:info] = '' unless opts[:info]
 		hopts = {:workspace => wspace, :host => addr}
 		hopts[:name] = hname if hname
 		hopts[:mac]  = hmac  if hmac
