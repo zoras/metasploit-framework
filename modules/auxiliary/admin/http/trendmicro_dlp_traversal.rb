@@ -36,7 +36,7 @@ class Metasploit3 < Msf::Auxiliary
 					[ 'OSVDB', '73447' ],
 					[ 'CVE', '2008-2938' ],
 					[ 'URL', 'http://www.securityfocus.com/archive/1/499926' ],
-					[ 'URL', 'http://www.exploit-db.com/exploits/17388' ],
+					[ 'EDB', 17388 ],
 					[ 'BID', '48225' ],
 				],
 			'Author'      => [ 'patrick' ],
@@ -102,7 +102,7 @@ class Metasploit3 < Msf::Auxiliary
 				print_good("File(s) found:")
 
 				@files_found.each do |f|
-					print_good("#{f}")
+					print_good(f)
 				end
 			else
 				print_good("No File(s) found")

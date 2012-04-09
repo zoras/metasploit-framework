@@ -1,6 +1,85 @@
 Armitage Changelog
 ==================
 
+29 Mar 12
+---------
+- Fixed a bug that affects first-time users. Armitage was not initializing a
+  console before trying to connect to the database. 
+
+28 Mar 12
+---------
+- Team server now delivers chat messages in batches vs. one line at a time. 
+  This will make syncing on reconnect much better (in theory)
+- Several optimizations to prevent unnecessary reads/calls to deconfliction
+  server when in team mode. This will primarily affect high latency situations.
+- Use Shift+Click to close all tabs with the same name. This feature now closes
+  all tabs in the same group (e.g., all screenshots, file browsers, command 
+  shells, etc.)
+- Armitage now logs launches of the enum_dns module.
+- Hosts -> DNS Enumerate now populates NS field with highlighted host.
+- Armitage now adds a tooltip to tabs associated with a session. Hover your 
+  mouse over a tab X button to see which host the tab is associated with.
+- Fixed a potential exception caused when listing downloads.
+- Created a queue to process certain commands meant for Metasploit in order and
+  in a throttled manner. Started moving some Armitage calls to it. Now you can
+  fire an exploit at 1,000 hosts and Armitage won't blink. It might take awhile
+  before that exploit finishes firing against all of the hosts though :)
+- The file browser now has a "List Drives" button. It's only available on 
+  Windows sessions. Click it to see which drives are available.
+- File browser can now navigate to folders with apostrophes in their name.
+- Made some major internal changes to how Armitage interacts with Metasploit. The
+  goal is to make a more robust and faster hacking experience for you.
+
+22 Mar 12
+---------
+- Updated Armitage NMap profiles with the following:
+	-T4 (instead of -T5) [wait longer for open services to reply]
+	-n  [forces NMap to not resolve the hostname of IP addresses]
+	--min-hostgroup 96 [allows more parallelism when scanning hosts]
+- Armitage now intercepts screenshot and webcam_snap commands from meterpreter 
+  shell and performs the appropriate action with them.
+- View -> Creds -> Export button now works in team mode.
+- Doh! Armitage now properly shows VMWare icon when OS is set to a VMWare ESXi
+- Armitage "is command finished?" heuristic now accounts for commands like
+  del /S which prompt with a (Y/N)? - you can safely use these commands again.
+- Armitage now detects whether a client connecting to the team server is out 
+  dated or not. It rejects old clients. They will get a message indicating they
+  need to update and then their client won't do anything else. You'll see a
+  message printed to STDOUT where the team server ran about the rejection.
+- Added a * indicator to the active workspace in the workspaces menu.
+- Added Hosts -> DNS Enumerate, this menu launches a Metasploit module that will
+  attempt to discover hosts by querying a name server in different ways.
+- Added a file chooser helper to WORDLIST option.
+- Armitage now displays a pivot relationship between a compromised host and the
+  NAT/proxy device it is connected through.
+- Added a Copy button to services tab. This button copies the highlighted hosts
+  to the clipboard. I found myself needing this several times recently.
+- Improved reverse payload selection logic (now it includes rev php meterpreter)
+- Armitage now sets a different LPORT for each exploit launched with a rev payload
+
+10:30am
+- Changed algorithm for determining which edges to highlight in graph view. If there
+  is a pivot and both sides have a session, then the edge is highlighted.
+
+8 Mar 12 1.43-dev
+--------
+- Armitage now uses session_host to determine which host a session is associated
+  with. This value is grabbed directly from the OS itself. You'll no longer have
+  20 meterpreter sessions associated with a NAT/firewall device.
+- Armitage now spins up a new listener for each client-side attack (no longer
+  relying on the random default listener created on startup). Of course you can
+  change this... double-click the PAYLOAD option to set it to something else.
+- Token stealing dialog now disables refresh button while grabbing tokens. Enables
+  it again when done.
+- Armitage now talks to Metasploit every two minutes to prevent auth timeout.
+- Armitage now displays a firewall icon for hosts with no OS marked as a firewall
+  by MSF.
+- Armitage now selects an IPv6 bind payload when attacking IPv6 hosts.
+- Armitage now explicitly sets RPORT for different MSF Scan options and psexec.
+- Updated the about dialog to include a version number and release date.
+- Added a ./teamserver [external IP] [shared pass] script to the UNIX distro of 
+  Armitage. This script makes it much easier to startup Armitage's team server mode.
+
 2 Mar 12 - Catching up to a few MSF 4.3.0-dev changes...
 --------
 - Added a tab rename feature.

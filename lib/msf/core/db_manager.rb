@@ -1,6 +1,7 @@
 require 'msf/core'
 require 'msf/core/db'
 require 'msf/core/task_manager'
+require 'fileutils'
 
 require "bundler/setup"
 
