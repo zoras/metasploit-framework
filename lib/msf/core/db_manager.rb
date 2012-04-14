@@ -3,8 +3,6 @@ require 'msf/core/db'
 require 'msf/core/task_manager'
 require 'fileutils'
 
-require "bundler/setup"
-
 # Provide access to ActiveRecord models shared w/ commercial versions
 require "metasploit_data_models"
 require "active_record"
