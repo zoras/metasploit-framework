@@ -17,8 +17,11 @@ class Gemcache
 		# The gemcache directory is a modified version of the output created by
 		# $ bundle install --path=lib/gemcache from within the Pro environment
 		
-		::Dir["#{@@gembase}/ruby/#{@@rubvers}/gems/*/lib"].each { |lib| $:.unshift(lib) }		
-		::Dir["#{@@gembase}/ruby/#{@@rubvers}/arch/#{@@gemarch}/*/lib"].each { |lib| $:.unshift(lib) }
+		::Dir["#{@@gembase}/ruby/#{@@rubvers}/gems/*/lib"].each { |lib| $:.unshift(lib) }	
+		
+		if ENV['MSF_BUNDLE_BINARY_GEMS'].to_s.downcase =~ /^[yt1]/
+			::Dir["#{@@gembase}/ruby/#{@@rubvers}/arch/#{@@gemarch}/*/lib"].each { |lib| $:.unshift(lib) }
+		end
 	end
 
 
