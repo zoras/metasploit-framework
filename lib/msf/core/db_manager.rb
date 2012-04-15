@@ -1,3 +1,5 @@
+require "active_record"
+
 require 'msf/core'
 require 'msf/core/db'
 require 'msf/core/task_manager'
@@ -5,7 +7,6 @@ require 'fileutils'
 
 # Provide access to ActiveRecord models shared w/ commercial versions
 require "metasploit_data_models"
-require "active_record"
 
 require 'fileutils'
 
@@ -69,6 +70,13 @@ class DBManager
 		initialize_database_support
 	end
 
+	#
+	# Add additional migration paths
+	#
+	def add_migration_path(path)
+		self.migration_paths.push(path)
+	end
+	
 	#
 	# Do what is necessary to load our database support
 	#

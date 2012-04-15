@@ -177,7 +177,7 @@ class Driver < Msf::Ui::Driver
 		
 			# Append any migration paths necessary to bring the database online
 			if opts['DatabaseMigrationPaths']
-				opts['DatabaseMigrationPaths'].each {|m| framework.db.migrations_paths << m }
+				opts['DatabaseMigrationPaths'].each {|m| framework.db.add_migration_path(m) }
 			end
 		
 			# Look for our database configuration in the following places, in order:
