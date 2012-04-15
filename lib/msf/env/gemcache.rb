@@ -22,9 +22,18 @@ class Gemcache
 		if ENV['MSF_BUNDLE_BINARY_GEMS'].to_s.downcase =~ /^[yt1]/
 			::Dir["#{@@gembase}/ruby/#{@@rubvers}/arch/#{@@gemarch}/*/lib"].each { |lib| $:.unshift(lib) }
 		end
+		
+		# Handle a specific corner case where SVN was used to update, but the installer is generation-1
+		# This will provide updated binary gems for older installation environments, which is required
+		# for framework-trunk to continue working after the ActiveRecord 3 upgrade.
+
+		if ::File.exists?( File.join( File.dirname(__FILE__), "..", "..", "..", "..", "properties.ini") ) and # Installer
+		   ::File.directory?( File.join( File.dirname(__FILE__), "..", "..", "..", "..", "apps", "pro") ) and # Confirmed
+		   ::File.exists?( File.join( File.dirname(__FILE__), "..", "..", "..", "..", "apps", "pro", "ui", "script", "console") ) # Rails2 artifact
+			# Load the arch-old gem directories before the system paths to get an updated pg gem
+			::Dir["#{@@gembase}/ruby/#{@@rubvers}/arch-old/#{@@gemarch}/*/lib"].each { |lib| $:.unshift(lib) }
+		end
 	end
-
-
 
 end
 end
