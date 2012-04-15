@@ -32,6 +32,18 @@ class Gemcache
 		   ::File.exists?( File.join( File.dirname(__FILE__), "..", "..", "..", "..", "apps", "pro", "ui", "script", "console") ) # Rails2 artifact
 			# Load the arch-old gem directories before the system paths to get an updated pg gem
 			::Dir["#{@@gembase}/ruby/#{@@rubvers}/arch-old/#{@@gemarch}/*/lib"].each { |lib| $:.unshift(lib) }
+			
+			# Patch up the gem command to always return true for certain gems
+			::Object.class_eval %q|
+				def gem(*args)
+					
+					return true if [ 
+						'pg'              # Bypass a gem() version call in ActiveRecord
+					].include?(args[0])
+					
+					super(*args)
+				end
+			|
 		end
 	end
 
