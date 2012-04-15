@@ -1034,9 +1034,9 @@ class DBManager
 		summary = opts.delete(:summary)
 		detail = opts.delete(:detail)
 		crit = opts.delete(:crit)
-    possible_tag = Tag.includes(:hosts).where("hosts.workspace_id = ? and tags.name = ?", wspace.id, name).order("id DESC").limit(1)
+    possible_tag = Mdm::Tag.includes(:hosts).where("hosts.workspace_id = ? and tags.name = ?", wspace.id, name).order("id DESC").limit(1)
 
-		tag = possible_tag.blank? || Tag.new
+		tag = possible_tag.blank? || Mdm::Tag.new
 		tag.name = name
 		tag.desc = desc
 		tag.report_summary = !!summary
