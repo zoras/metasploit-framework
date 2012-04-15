@@ -1273,9 +1273,9 @@ class DBManager
 		name = name[0,255]
 
 		if info and name !~ /^NEXPOSE-/
-			vuln = host.vulns.find_or_initialize_by_name_and_info(name, info, :include => :refs)
+			vuln = host.vulns.find_or_initialize_by_name_and_info(name, info)
 		else
-			vuln = host.vulns.find_or_initialize_by_name(name, :include => :refs)
+			vuln = host.vulns.find_or_initialize_by_name(name)
 		end
 
 		vuln.info = info.to_s if info
