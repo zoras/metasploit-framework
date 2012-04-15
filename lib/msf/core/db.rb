@@ -1310,9 +1310,9 @@ class DBManager
 		raise RuntimeError, "Not workspace safe: #{caller.inspect}"
 		vuln = nil
 		if (service)
-			vuln = Vuln.find.where("name = ? and service_id = ? and host_id = ?", name, service.id, host.id).order("id DESC").first()
-    else
-			vuln = Vuln.find.where("name = ? and host_id = ?", name, host.id).first()
+			vuln = ::Mdm::Vuln.find.where("name = ? and service_id = ? and host_id = ?", name, service.id, host.id).order("id DESC").first()
+		else
+			vuln = ::Mdm::Vuln.find.where("name = ? and host_id = ?", name, host.id).first()
 		end
 
 		return vuln
@@ -1326,14 +1326,15 @@ class DBManager
 		ret[:ref] = get_ref(opts[:name])
 		return ret[:ref] if ret[:ref]
 
-		ref = Ref.find_or_initialize_by_name(opts[:name])
+		ref = ::Mdm::Ref.find_or_initialize_by_name(opts[:name])
 		if ref and ref.changed?
 			ref.save!
 		end
 		ret[:ref] = ref
 	end
+	
 	def get_ref(name)
-		Ref.find_by_name(name)
+		::Mdm::Ref.find_by_name(name)
 	end
 
 	# report_exploit() used to be used to track sessions and which modules
@@ -1371,14 +1372,14 @@ class DBManager
 	# Find a reference matching this name
 	#
 	def has_ref?(name)
-		Ref.find_by_name(name)
+		Mdm::Ref.find_by_name(name)
 	end
 
 	#
 	# Find a vulnerability matching this name
 	#
 	def has_vuln?(name)
-		Vuln.find_by_name(name)
+		Mdm::Vuln.find_by_name(name)
 	end
 
 	#
@@ -1666,7 +1667,7 @@ class DBManager
 =end
 
 		vhost ||= host.address
-		site = WebSite.find_or_initialize_by_vhost_and_service_id(vhost, serv[:id])
+		site = ::Mdm::WebSite.find_or_initialize_by_vhost_and_service_id(vhost, serv[:id])
 		site.options = opts[:options] if opts[:options]
 
 		# XXX:
@@ -1720,7 +1721,7 @@ class DBManager
 			raise ArgumentError, "report_web_page requires the path, query, code, body, and headers parameters"
 		end
 
-		if opts[:web_site] and opts[:web_site].kind_of?(WebSite)
+		if opts[:web_site] and opts[:web_site].kind_of?(::Mdm::WebSite)
 			site = opts.delete(:web_site)
 		else
 			site = report_web_site(
@@ -1735,7 +1736,7 @@ class DBManager
 
 		ret = {}
 
-		page = WebPage.find_or_initialize_by_web_site_id_and_path_and_query(site[:id], path, query)
+		page = ::Mdm::WebPage.find_or_initialize_by_web_site_id_and_path_and_query(site[:id], path, query)
 		page.code     = code
 		page.body     = body
 		page.headers  = headers
@@ -1789,7 +1790,7 @@ class DBManager
 			raise ArgumentError, "report_web_form requires the method to be one of GET, POST, PATH"
 		end
 
-		if opts[:web_site] and opts[:web_site].kind_of?(WebSite)
+		if opts[:web_site] and opts[:web_site].kind_of?(::Mdm::WebSite)
 			site = opts.delete(:web_site)
 		else
 			site = report_web_site(
@@ -1808,14 +1809,14 @@ class DBManager
 		# comparisons through ruby and not SQL.
 
 		form = nil
-		WebForm.find_all_by_web_site_id_and_path_and_method_and_query(site[:id], path, meth, quer).each do |xform|
+		::Mdm::WebForm.find_all_by_web_site_id_and_path_and_method_and_query(site[:id], path, meth, quer).each do |xform|
 			if xform.params == para
 				form = xform
 				break
 			end
 		end
 		if not form
-			form = WebForm.new
+			form = ::Mdm::WebForm.new
 			form.web_site_id = site[:id]
 			form.path        = path
 			form.method      = meth
@@ -1896,7 +1897,7 @@ class DBManager
 			raise ArgumentError, "report_web_vuln requires the name to be a valid string"
 		end
 
-		if opts[:web_site] and opts[:web_site].kind_of?(WebSite)
+		if opts[:web_site] and opts[:web_site].kind_of?(::Mdm::WebSite)
 			site = opts.delete(:web_site)
 		else
 			site = report_web_site(
@@ -1913,7 +1914,7 @@ class DBManager
 
 		meth = meth.to_s.upcase
 
-		vuln = WebVuln.find_or_initialize_by_web_site_id_and_path_and_method_and_pname_and_name_and_category_and_query(site[:id], path, meth, pname, name, cat, quer)
+		vuln = ::Mdm::WebVuln.find_or_initialize_by_web_site_id_and_path_and_method_and_pname_and_name_and_category_and_query(site[:id], path, meth, pname, name, cat, quer)
 		vuln.name     = name
 		vuln.risk     = risk
 		vuln.params   = para
@@ -1933,7 +1934,7 @@ class DBManager
 	# Selected host
 	#
 	def selected_host
-		selhost = WmapTarget.where("selected != 0").first()
+		selhost = ::Mdm::WmapTarget.where("selected != 0").first()
 		if selhost
 			return selhost.host
 		else
@@ -1946,7 +1947,7 @@ class DBManager
 	# Selected target
 	#
 	def selected_wmap_target
-		WmapTarget.find.where("selected != 0")
+		::Mdm::WmapTarget.find.where("selected != 0")
 	end
 
 	#
@@ -1990,7 +1991,7 @@ class DBManager
 	# This method wiil be remove on second phase of db merging.
 	#
 	def request_distinct_targets
-		WmapRequest.select('DISTINCT host,address,port,ssl')
+		::Mdm::WmapRequest.select('DISTINCT host,address,port,ssl')
 	end
 
 	#
@@ -2048,7 +2049,7 @@ class DBManager
 	# This method returns a list of all requests from target
 	#
 	def target_requests(extra_condition)
-		WmapRequest.where("wmap_requests.host = ? AND wmap_requests.port = ? #{extra_condition}",selected_host,selected_port)
+		::Mdm::WmapRequest.where("wmap_requests.host = ? AND wmap_requests.port = ? #{extra_condition}",selected_host,selected_port)
 	end
 
 	#
@@ -2067,7 +2068,7 @@ class DBManager
 	# This method allows to query directly the requests table. To be used mainly by modules
 	#
 	def request_sql(host,port,extra_condition)
-		WmapRequest.where("wmap_requests.host = ? AND wmap_requests.port = ? #{extra_condition}", host , port)
+		::Mdm::WmapRequest.where("wmap_requests.host = ? AND wmap_requests.port = ? #{extra_condition}", host , port)
 	end
 
 	#
@@ -2075,7 +2076,7 @@ class DBManager
 	# This methods returns a list of all targets in the database
 	#
 	def requests
-		WmapRequest.find(:all)
+		::Mdm::WmapRequest.find(:all)
 	end
 
 	#
@@ -2094,7 +2095,7 @@ class DBManager
 	# This methods returns a list of all targets in the database
 	#
 	def targets
-		WmapTarget.find(:all)
+		::Mdm::WmapTarget.find(:all)
 	end
 
 	#
@@ -2102,7 +2103,7 @@ class DBManager
 	# This methods deletes all targets from targets table in the database
 	#
 	def delete_all_targets
-		WmapTarget.delete_all
+		::Mdm::WmapTarget.delete_all
 	end
 
 	#
@@ -2110,7 +2111,7 @@ class DBManager
 	# Find a target matching this id
 	#
 	def get_target(id)
-		target = WmapTarget.where("id = ?", id).first()
+		target = ::Mdm::WmapTarget.where("id = ?", id).first()
 		return target
 	end
 
@@ -2119,7 +2120,7 @@ class DBManager
 	# Create a target
 	#
 	def create_target(host,port,ssl,sel)
-		tar = WmapTarget.create(
+		tar = ::Mdm::WmapTarget.create(
 				:host => host,
 				:address => host,
 				:port => port,
@@ -2135,7 +2136,7 @@ class DBManager
 	# Create a request (by hand)
 	#
 	def create_request(host,port,ssl,meth,path,headers,query,body,respcode,resphead,response)
-		req = WmapRequest.create(
+		req = ::Mdm::WmapRequest.create(
 				:host => host,
 				:address => host,
 				:port => port,
