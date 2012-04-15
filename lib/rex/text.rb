@@ -2,13 +2,13 @@ require 'digest/md5'
 require 'stringio'
 
 begin
-	old_stderr = $stderr
-	$stderr = ::StringIO.new
+	old_verbose = $VERBOSE
+	$VERBOSE = nil
 	require 'iconv'
 	require 'zlib'
 rescue ::LoadError
 ensure 
-	$stderr = old_stderr
+	$VERBOSE = old_verbose
 end
 
 module Rex
