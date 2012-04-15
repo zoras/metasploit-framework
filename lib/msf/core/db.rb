@@ -830,7 +830,7 @@ class DBManager
 	# This methods returns a list of all credentials in the database
 	#
 	def creds(wspace=workspace)
-    Cred.includes({:service => :host}).where("hosts.workspace_id = ?", wspace.id)
+    Mdm::Cred.includes({:service => :host}).where("hosts.workspace_id = ?", wspace.id)
 	end
 
 	#
