@@ -1236,10 +1236,10 @@ class DBManager
 		if opts[:refs]
 			rids = []
 			opts[:refs].each do |r|
-				if r.respond_to? :ctx_id
-					r = r.ctx_id + '-' + r.ctx_val
+				if (r.respond_to?(:ctx_id)) and (r.respond_to?(:ctx_val))
+					r = "#{r.ctx_id}-#{r.ctx_val}"
+					rids << find_or_create_ref(:name => r)
 				end
-				rids << find_or_create_ref(:name => r)
 			end
 		end
 
