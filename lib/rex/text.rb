@@ -2,9 +2,13 @@ require 'digest/md5'
 require 'stringio'
 
 begin
+	old_stderr = $stderr
+	$stderr = ::StringIO.new
 	require 'iconv'
 	require 'zlib'
-rescue LoadError
+rescue ::LoadError
+ensure 
+	$stderr = old_stderr
 end
 
 module Rex
