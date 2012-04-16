@@ -5,7 +5,7 @@
 _msf_gemcache = false
 
 # If the bundle option is explicitly set, load the gemcache
-if ENV['MSF_BUNDLE_GEMS'].to_s.downcase =~ /^[yt1]/
+unless ENV['MSF_BUNDLE_GEMS'].to_s.downcase =~ /^[nf0]/  # NO/FALSE/0
 	require 'msf/env/gemcache'
 	_msf_gemcache = true
 else
