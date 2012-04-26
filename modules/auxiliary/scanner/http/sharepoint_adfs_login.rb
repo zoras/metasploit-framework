@@ -13,7 +13,7 @@ class Metasploit3 < Msf::Auxiliary
 	include Msf::Auxiliary::AuthBrute
 	include Msf::Exploit::Remote::HttpClient
 
-	def initialize
+	def initialize(info={})
 		super(update_info(info,
 			'Name'           => 'Sharepoint/ADFS Brute Force Utility',
 			'Description'    => %q{
