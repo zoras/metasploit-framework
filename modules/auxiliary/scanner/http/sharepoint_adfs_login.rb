@@ -14,7 +14,7 @@ class Metasploit3 < Msf::Auxiliary
 	include Msf::Exploit::Remote::HttpClient
 
 	def initialize
-		super(
+		super(update_info(info,
 			'Name'           => 'Sharepoint/ADFS Brute Force Utility',
 			'Description'    => %q{
 				This module tests credentials on Sharepoint/AFDS. AuthPath needs to be set to
@@ -27,21 +27,10 @@ class Metasploit3 < Msf::Auxiliary
 			},
 			'Author'         =>
 				[
-					'otr',
+					'otr'
 				],
-			'License'        => MSF_LICENSE,
-			'Actions'        =>
-				[
-					[
-						'Sharepoint',
-						{
-							'Description' => 'Sharepoint',
-							'IncorrectCheck'  => /incorrect/
-						}
-					]
-				],
-			'DefaultAction' => 'Sharepoint'
-		)
+			'License'        => MSF_LICENSE
+		))
 
 		register_options(
 			[
@@ -178,7 +167,7 @@ class Metasploit3 < Msf::Auxiliary
 		print_error("No username/password specified") if isempty
 
 		auth_path   = datastore['AuthPath']
-		login_check = action.opts['IncorrectCheck']
+		login_check = /incorrect/
 
 		begin
 			each_user_pass do |user, pass|
@@ -271,6 +260,7 @@ class Metasploit3 < Msf::Auxiliary
 			return :next_user
 		end
 	end
+
 	def msg
 		"#{vhost}:#{rport} Sharepoint -"
 	end
