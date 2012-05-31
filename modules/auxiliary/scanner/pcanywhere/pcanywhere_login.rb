@@ -87,7 +87,7 @@ class Metasploit3 < Msf::Auxiliary
 		res = nsock.get_once(-1,5)
 
 		#See if this knocked a login prompt loose
-		if res and res.include? "Enter login"
+		if pca_at_login?(res)
 			nsock.put(euser)
 			res = nsock.get_once(-1,5)
 		end 
@@ -100,7 +100,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		epass = encryption_header(encrypt(pass))
 		nsock.put(epass)
-		res = nsock.get_once(-1,5)
+		res = nsock.get_once(-1,20)
 		if res.include? "Login unsuccessful"
 			disconnect()
 			return :reset
