@@ -39,8 +39,9 @@ class Metasploit3 < Msf::Auxiliary
 
 	def run
 		this_array = Array.new
-		this_array << "bug"
-		print_status this_array.join
+		this_array << "If you can see this, "
+		this_array << "the bug is resolved."
+		print_good this_array.join
 	end
 
 end
