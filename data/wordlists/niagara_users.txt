@@ -1,3 +1,2 @@
-monitor
-guest
 demo
+admin

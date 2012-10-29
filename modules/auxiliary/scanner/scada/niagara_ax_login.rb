@@ -62,7 +62,6 @@ class Metasploit3 < Msf::Auxiliary
 		"#{rhost}:#{rport}"
 	end
 
-
 	def do_login(user=nil,pass=nil)
 		begin
 			vprint_status("#{target} - Trying user:'#{user}' with password:'#{pass}'")
@@ -77,7 +76,7 @@ class Metasploit3 < Msf::Auxiliary
 				:user => user,
 				:pass => pass,
 				:source_type => "user_supplied",
-				:proof  => scookie,
+				:proof  => @niagara_auth,
 				:active => true
 			)
 			return :next_user
@@ -117,7 +116,6 @@ class Metasploit3 < Msf::Auxiliary
 
 		# Handle scheme 'cookieDigest'	
 		if login_body.index("id='scheme' value='cookieDigest'")
-			vprint_status("#{target} Using cookieDigest authentication")
 			scheme = "cookieDigest"
 
 			res = send_request_cgi({
@@ -170,7 +168,14 @@ class Metasploit3 < Msf::Auxiliary
 
 		print_status(res.inspect)
 
-		return :abort
+		if res['Set-Cookie'].to_s =~ /niagara_auth=([^;]+);/i
+			@niagara_auth = $1
+			return false
+		end
+
+		return :fail
 	end
 
 end
+
+
