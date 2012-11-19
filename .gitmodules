@@ -1,0 +1,6 @@
+[submodule "external/source/meterpreter"]
+	path = external/source/meterpreter
+	url = https://github.com/rapid7/meterpreter.git
+[submodule "external/source/meterpreter-java"]
+	path = external/source/meterpreter-java
+	url = https://github.com/rapid7/meterpreter-java.git
