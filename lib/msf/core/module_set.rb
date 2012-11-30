@@ -231,7 +231,9 @@ class Msf::ModuleSet < Hash
   # @return [void]
   def demand_load_modules
     # Pre-scan the module list for any symbolic modules
-    self.each_pair { |name, mod|
+    # Iterate a temporary array to prevent modify-within-enumerator issues
+    self.keys.map { |k| [ k, self[k] ] }.each do |entry|
+      name, mod = entry
       if (mod == Msf::SymbolicModule)
         self.postpone_recalculate = true
 
@@ -239,7 +241,7 @@ class Msf::ModuleSet < Hash
 
         next if (mod.nil?)
       end
-    }
+    end
 
     # If we found any symbolic modules, then recalculate.
     if (self.postpone_recalculate)
@@ -262,7 +264,8 @@ class Msf::ModuleSet < Hash
   # @yieldparam [Class] module The module class: a subclass of {Msf::Module}.
   # @return [void]
   def each_module_list(ary, opts, &block)
-    ary.each { |entry|
+    # Iterate a temporary array to prevent modify-within-enumerator issues
+    ary.dup.each { |entry|
       name, mod = entry
 
       # Skip any lingering symbolic modules.

@@ -75,23 +75,17 @@ class PayloadSet < ModuleSet
 	#
 	def recalculate
 		# Reset the current hash associations for all non-symbolic modules
-		self.each_pair { |key, v|
-			manager.delete(key) if (v != SymbolicModule)
-		}
+		self.keys.map{|k| [k, self[k]] }.each do |entry|
+			manager.delete(entry[0]) if (entry[1] != SymbolicModule)
+		end
 
 		self.delete_if { |k, v|
 			v != SymbolicModule
 		}
 
-		# Initialize a temporary hash
-		_temp = {}
-
-		# Populate the temporary hash
-		_singles.each_pair { |name, op|
-			_temp[name] = op
-		}
 		# Recalculate single payloads
-		_temp.each_pair { |name, op|
+		_singles.keys.map{|k| [k, _singles[k]] }.each do |entry|
+			name, op = entry
 			mod, handler = op
 
 			# Build the payload dupe using the determined handler
@@ -111,22 +105,17 @@ class PayloadSet < ModuleSet
 			# Don't cache generic payload sizes.
 			rescue NoCompatiblePayloadError
 			end
-		}
+		end
 
-		# Initialize a temporary hash
-		_temp = {}
-
-		# Populate the temporary hash
-		_stagers.each_pair { |stager_name, op|
-			_temp[stager_name] = op
-		}
 		# Recalculate staged payloads
-		_temp.each_pair { |stager_name, op|
+		_stagers.keys.map{|k| [k, _stagers[k]] }.each do |entry|
+			stager_name, op = entry
 			mod, handler = op
 			stager_mod, handler, stager_platform, stager_arch, stager_inst = op
 
 			# Walk the array of stages
-			_stages.each_pair { |stage_name, ip|
+			_stages.keys.map{|k| [k, _stages[k]] }.each do |stage_entry|
+				stage_name, ip = stage_entry
 				stage_mod, junk, stage_platform, stage_arch, stage_inst = ip
 
 				# No intersection between platforms on the payloads?
@@ -182,8 +171,8 @@ class PayloadSet < ModuleSet
 
 				# Cache the payload's size
 				sizes[combined] = p.new.size
-			}
-		}
+			end
+		end
 
 		flush_blob_cache
 	end
@@ -452,4 +441,3 @@ protected
 end
 
 end
-
